@@ -6,7 +6,7 @@ import dbConnect from '../../../../lib/dbConnect';
 export async function POST(req) {
   await dbConnect(); // Łączenie z bazą danych
 
-  const { username, email, password } = await req.json(); // Odbieramy dane z formularza
+  const { username, email, password, role } = await req.json(); // Odbieramy dane z formularza
   if (!username || !email || !password) {
     return new Response(
       JSON.stringify({ error: 'All fields are required' }),
@@ -30,12 +30,13 @@ export async function POST(req) {
       username,
       email,
       password: hashedPassword,
+      role: role || 'user', // Przypisanie roli, domyślnie 'user'
     });
 
     await newUser.save(); // Dodanie użytkownika do bazy
 
     const token = jwt.sign(
-      { userId: newUser._id, username: newUser.username },
+      { userId: newUser._id, username: newUser.username, role: newUser.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
