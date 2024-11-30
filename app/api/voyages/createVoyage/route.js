@@ -1,6 +1,6 @@
-import verifyToken from '../../middleware/verifyToken';  // Middleware
-import Voyage from '../../../../models/Voyage';  // Model rejsu
-import Ship from '../../../../models/Ship';      // Model statku
+import verifyToken from '../../middleware/verifyToken';
+import Voyage from '../../../../models/Voyage';
+import Ship from '../../../../models/Ship';
 
 export async function POST(req) {
   try {
