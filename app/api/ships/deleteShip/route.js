@@ -2,24 +2,25 @@ import verifyToken from '../../middleware/verifyToken';
 import Ship from '../../../../models/Ship';
 
 export const DELETE = async (req) => {
-  // Sprawdzanie tokenu
-  const tokenVerification = await verifyToken(req, true); // True oznacza, że wymagana jest rola admina
-  if (tokenVerification) {
-    return tokenVerification; // Jeśli token nieprawidłowy lub użytkownik nie jest adminem
-  }
-
   try {
-    const { id } = await req.json(); // Oczekujemy id statku w ciele zapytania
-    console.log('Received ship ID:', id); // Dodajemy logowanie ID
+    // Sprawdzanie tokenu
+    const { error, user, response } = await verifyToken(req, true); // True oznacza, że wymagana jest rola admina
+    if (error) return response; // Jeśli token nieprawidłowy lub użytkownik nie jest adminem
+
+    console.log('Authenticated admin:', user);
+
+    // Pobranie ID statku z ciała zapytania
+    const { id } = await req.json();
+    console.log('Received ship ID:', id);
 
     if (!id) {
       return new Response(
-        JSON.stringify({ message: 'Invalid or missing ship id' }),
+        JSON.stringify({ message: 'Invalid or missing ship ID' }),
         { status: 400 }
       );
     }
 
-    // Próbujemy znaleźć i usunąć statek
+    // Próba usunięcia statku
     const ship = await Ship.findByIdAndDelete(id);
 
     if (!ship) {
@@ -29,7 +30,7 @@ export const DELETE = async (req) => {
       );
     }
 
-    //console.log('Ship deleted:', ship); // Logowanie usuniętego statku
+    console.log('Ship deleted:', ship); // Logowanie usuniętego statku
 
     return new Response(
       JSON.stringify({ message: 'Ship deleted successfully' }),

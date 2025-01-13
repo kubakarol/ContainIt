@@ -3,13 +3,13 @@ import Ship from '../../../../models/Ship';
 
 // Obsługuje metodę GET - pobieranie wszystkich statków
 export const GET = async (req) => {
-  // Sprawdzanie tokenu
-  const tokenVerification = await verifyToken(req, true); // True oznacza, że wymagana jest rola admina
-  if (tokenVerification) {
-    return tokenVerification; // Jeśli token nieprawidłowy lub użytkownik nie jest adminem
-  }
-
   try {
+    // Sprawdzanie tokenu
+    const { error, user, response } = await verifyToken(req, true); // True oznacza, że wymagana jest rola admina
+    if (error) return response; // Jeśli token nieprawidłowy lub użytkownik nie jest adminem
+
+    console.log('Authenticated admin:', user);
+
     // Pobieranie wszystkich statków z bazy danych
     const ships = await Ship.find();
 

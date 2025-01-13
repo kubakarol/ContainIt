@@ -1,4 +1,6 @@
 import Voyage from '../../../../models/Voyage'; // Model rejsu
+import Ship from '../../../../models/Ship';
+
 
 export async function GET(req) {
   try {
@@ -11,10 +13,11 @@ export async function GET(req) {
       return new Response(JSON.stringify({ message: 'No voyages found' }), { status: 404 });
     }
 
-    // Zwróć dane o rejsach
+    // Zwróć dane o rejsach, w tym _id każdego rejsu
     return new Response(
       JSON.stringify({
         voyages: voyages.map((voyage) => ({
+          id: voyage._id, // Dodanie _id jako id
           shipName: voyage.ship.name, // Nazwa statku
           shipCapacity: voyage.ship.capacity, // Pojemność statku
           shipPricePerContainer: voyage.ship.pricePerContainer, // Cena za kontener

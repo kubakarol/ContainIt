@@ -4,32 +4,33 @@ import verifyToken from '../../middleware/verifyToken';
 import mongoose from 'mongoose';
 
 export const PUT = async (req) => {
-  // Sprawdzenie tokenu i upewnienie się, że użytkownik jest adminem
-  const tokenVerification = await verifyToken(req, true); // Wymaga admina
-  if (tokenVerification) {
-    return tokenVerification; // Jeśli token jest nieważny lub użytkownik nie jest adminem
-  }
-
-  // Pobranie danych z requestu
-  const { id, name, capacity, pricePerContainer } = await req.json();
-
-  if (!id || !name || !capacity || !pricePerContainer) {
-    return new NextResponse(
-      JSON.stringify({ message: 'Missing required fields' }),
-      { status: 400 }
-    );
-  }
-
-  // Przekonwertowanie id na ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return new NextResponse(
-      JSON.stringify({ message: 'Invalid ship id' }),
-      { status: 400 }
-    );
-  }
-
   try {
-    // Szukamy statku po ID
+    // Sprawdzenie tokenu i upewnienie się, że użytkownik jest adminem
+    const { error, user, response } = await verifyToken(req, true); // Wymaga admina
+    if (error) return response; // Jeśli token jest nieważny lub użytkownik nie jest adminem
+
+    console.log('Authenticated admin:', user);
+
+    // Pobranie danych z requestu
+    const { id, name, capacity, pricePerContainer } = await req.json();
+
+    // Walidacja danych wejściowych
+    if (!id || !name || !capacity || !pricePerContainer) {
+      return new NextResponse(
+        JSON.stringify({ message: 'Missing required fields' }),
+        { status: 400 }
+      );
+    }
+
+    // Sprawdzanie poprawności ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return new NextResponse(
+        JSON.stringify({ message: 'Invalid ship id' }),
+        { status: 400 }
+      );
+    }
+
+    // Szukanie statku po ID
     const ship = await Ship.findById(id);
 
     if (!ship) {

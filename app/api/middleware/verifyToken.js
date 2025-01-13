@@ -7,35 +7,32 @@ const verifyToken = async (req, requireAdmin = false) => {
 
   if (!token) {
     console.log('No token provided');
-    return new NextResponse(
+    return { error: true, response: new NextResponse(
       JSON.stringify({ message: "Access Denied" }),
       { status: 403 }
-    );
+    ) };
   }
 
   try {
     const user = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = user; // Przechowuj dane użytkownika w req.user
-    console.log('Token verified');
+    console.log('Token verified:', user);
 
-    // Sprawdzenie roli, tylko jeśli requireAdmin jest ustawione na true
     if (requireAdmin && user.role !== 'admin') {
       console.log('Access Denied: Not an admin');
-      return new NextResponse(
+      return { error: true, response: new NextResponse(
         JSON.stringify({ message: "Access Denied: Not an admin" }),
         { status: 403 }
-      );
+      ) };
     }
 
+    return { error: false, user }; // Jeśli wszystko jest ok, zwróć user
   } catch (err) {
-    console.log('Token verification failed');
-    return new NextResponse(
+    console.log('Token verification failed:', err.message);
+    return { error: true, response: new NextResponse(
       JSON.stringify({ message: "Invalid Token" }),
       { status: 403 }
-    );
+    ) };
   }
-
-  return null; // Jeśli wszystko jest ok, zwróć null
 };
 
 export default verifyToken;

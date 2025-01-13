@@ -3,18 +3,17 @@ import Ship from '../../../../../models/Ship';
 
 // Obsługuje metodę GET - pobieranie statku po ID
 export async function GET(req, { params }) {
-  // Sprawdzanie tokenu
-  const tokenVerification = await verifyToken(req, true); // True oznacza, że wymagana jest rola admina
-  if (tokenVerification) {
-    return tokenVerification; // Jeśli token nieprawidłowy lub użytkownik nie jest adminem
-  }
-
-  const { id } = params; // Pobieramy ID z dynamicznego parametru
-
-  console.log('Looking for ship with ID:', id); // Dodajemy logowanie, aby sprawdzić ID
-
   try {
-    // Weryfikacja, czy ID jest prawidłowym formatem ObjectId
+    // Sprawdzanie tokenu i roli użytkownika
+    const { error, user, response } = await verifyToken(req, true); // True oznacza, że wymagana jest rola admina
+    if (error) return response; // Jeśli token jest nieprawidłowy lub użytkownik nie jest adminem
+
+    console.log('Authenticated admin:', user);
+
+    const { id } = params; // Pobieramy ID z dynamicznego parametru
+    console.log('Looking for ship with ID:', id);
+
+    // Weryfikacja formatu ID
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return new Response(
         JSON.stringify({ message: 'Invalid ID format' }),
@@ -32,6 +31,7 @@ export async function GET(req, { params }) {
       );
     }
 
+    // Zwracanie znalezionego statku
     return new Response(
       JSON.stringify({ ship }),
       { status: 200 }

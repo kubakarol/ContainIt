@@ -3,15 +3,15 @@ import Ship from '../../../../models/Ship';
 
 // Obsługuje metodę POST - dodawanie statku
 export const POST = async (req) => {
-  // Weryfikacja tokenu, sprawdzanie, czy użytkownik jest administratorem
-  const tokenVerification = await verifyToken(req, true);
-  if (tokenVerification) {
-    return tokenVerification; // Jeśli token nieprawidłowy lub użytkownik nie jest adminem
-  }
-
-  const { name, capacity, pricePerContainer } = await req.json();
-
   try {
+    // Weryfikacja tokenu, sprawdzanie, czy użytkownik jest administratorem
+    const { error, user, response } = await verifyToken(req, true);
+    if (error) return response; // Jeśli token nieprawidłowy lub użytkownik nie jest adminem
+
+    console.log('Authenticated admin:', user);
+
+    const { name, capacity, pricePerContainer } = await req.json();
+
     // Tworzenie nowego statku
     const newShip = new Ship({
       name,
