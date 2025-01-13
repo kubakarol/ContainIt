@@ -6,6 +6,7 @@ import verifyToken from '../../middleware/verifyToken';
 
 export async function POST(req) {
   try {
+    // Weryfikacja użytkownika
     const { error, user, response } = await verifyToken(req);
     if (error) return response;
 
@@ -61,7 +62,7 @@ export async function POST(req) {
       userId: user.userId,
       username: user.username,
       reservedContainers,
-      status: 'pending',
+      status: 'Pending',
       totalPrice, // Dodano pole totalPrice
     });
 
@@ -72,6 +73,7 @@ export async function POST(req) {
     voyage.availableContainers -= reservedContainers;
     await voyage.save();
 
+    // Zwrócenie odpowiedzi sukcesu
     return new NextResponse(
       JSON.stringify({
         message: 'Reservation created successfully',

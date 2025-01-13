@@ -25,14 +25,18 @@ const reservationSchema = new mongoose.Schema({
     min: 1,
   },
   totalPrice: {
-    type: Number, // Cena całkowita
+    type: Number,
     required: true,
     min: 0,
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'canceled'],
-    default: 'pending',
+    enum: ['Pending', 'Approved', 'Rejected'], // Zmieniono wartości na wielkie litery
+    default: 'Pending',
+  },
+  comment: {
+    type: String, // Komentarz dla odrzuconych rezerwacji
+    required: false,
   },
 }, {
   timestamps: true,
