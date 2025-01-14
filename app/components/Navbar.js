@@ -66,7 +66,7 @@ export default function Navbar() {
             {role === "user" && (
               <>
                 <li className="nav-item">
-                  <a className="nav-link" href="/voyages">Available Voyages</a>
+                  <a className="nav-link" href="/getAllVoyages">Available Voyages</a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/myReservations">My Reservations</a>
@@ -76,7 +76,7 @@ export default function Navbar() {
             {role === "admin" && (
               <>
                 <li className="nav-item">
-                  <a className="nav-link" href="/ships">Ships</a>
+                  <a className="nav-link" href="/getAllShips">Ships</a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/voyages">Voyages</a>
