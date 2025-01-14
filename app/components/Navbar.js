@@ -22,9 +22,28 @@ export default function Navbar() {
     }
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      // Wyślij żądanie POST do endpointu logout
+      const response = await fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to logout");
+      }
+
+      // Usuń token z localStorage
+      localStorage.removeItem("token");
+
+      // Przekieruj na stronę główną
+      router.push("/");
+    } catch (err) {
+      console.error("Error during logout:", err);
+    }
   };
 
   return (
@@ -67,10 +86,10 @@ export default function Navbar() {
                 </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/users">Users</a>
-                </li> 
+                </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/analytics">Analytics</a>
-                </li>                    
+                </li>
               </>
             )}
             <li className="nav-item">
