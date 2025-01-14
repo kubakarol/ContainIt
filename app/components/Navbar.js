@@ -85,7 +85,7 @@ export default function Navbar() {
                   <a className="nav-link" href="/reservations">Reservations</a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="/users">Users</a>
+                  <a className="nav-link" href="/getAllUsers">Users</a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/analytics">Analytics</a>
