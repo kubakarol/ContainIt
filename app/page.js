@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 
-export default function Home() {
+export default function Main() {
   return (
     <div
       style={{
