@@ -50,7 +50,7 @@ export default function Navbar() {
                   <a className="nav-link" href="/voyages">Available Voyages</a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="/reservations">My Reservations</a>
+                  <a className="nav-link" href="/myReservations">My Reservations</a>
                 </li>
               </>
             )}
