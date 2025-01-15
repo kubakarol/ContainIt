@@ -62,7 +62,9 @@ export default function MyReservations() {
                     <strong>Reserved Containers:</strong> {reservation.reservedContainers} <br />
                     <strong>Total Price:</strong> ${reservation.totalPrice} <br />
                     <strong>Status:</strong> {reservation.status} <br />
-                    <strong>Reservation Date:</strong> {new Date(reservation.createdAt).toLocaleDateString()}
+                    <strong>Reservation Date:</strong> {new Date(reservation.createdAt).toLocaleDateString()} <br />
+                    <strong>Departure Date:</strong> {new Date(reservation.departureDate).toLocaleDateString()} <br />
+                    <strong>Departure Date:</strong> {new Date(reservation.arrivalDate).toLocaleDateString()} <br />
                   </p>
                 </div>
               </div>

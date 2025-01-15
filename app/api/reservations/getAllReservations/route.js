@@ -37,6 +37,8 @@ export async function GET(req) {
       totalPrice: reservation.totalPrice || 0, // Jeśli obsługujemy totalPrice
       status: reservation.status,
       createdAt: reservation.createdAt,
+      departureDate: reservation.departureDate,
+      arrivalDate: reservation.arrivalDate,
     }));
 
     return new NextResponse(

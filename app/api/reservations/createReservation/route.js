@@ -63,7 +63,9 @@ export async function POST(req) {
       username: user.username,
       reservedContainers,
       status: 'Pending',
-      totalPrice, // Dodano pole totalPrice
+      totalPrice,
+      departureDate: voyage.departureDate, // Dodanie departureDate
+      arrivalDate: voyage.arrivalDate, // Dodanie arrivalDate
     });
 
     // Zapisanie rezerwacji w bazie danych
@@ -82,8 +84,10 @@ export async function POST(req) {
           voyageId: reservation.voyage,
           username: reservation.username,
           reservedContainers: reservation.reservedContainers,
-          totalPrice, // Zwracanie ceny w odpowiedzi
+          totalPrice,
           status: reservation.status,
+          departureDate: reservation.departureDate,
+          arrivalDate: reservation.arrivalDate,
         },
       }),
       { status: 201 }
