@@ -64,7 +64,8 @@ export default function MyReservations() {
                     <strong>Status:</strong> {reservation.status} <br />
                     <strong>Reservation Date:</strong> {new Date(reservation.createdAt).toLocaleDateString()} <br />
                     <strong>Departure Date:</strong> {new Date(reservation.departureDate).toLocaleDateString()} <br />
-                    <strong>Departure Date:</strong> {new Date(reservation.arrivalDate).toLocaleDateString()} <br />
+                    <strong>Arrival Date:</strong> {new Date(reservation.arrivalDate).toLocaleDateString()} <br />
+                    <strong>Comment:</strong> {reservation.comment} <br />
                   </p>
                 </div>
               </div>

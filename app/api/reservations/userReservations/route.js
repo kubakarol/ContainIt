@@ -36,6 +36,7 @@ export async function GET(req) {
       createdAt: reservation.createdAt,
       departureDate: reservation.departureDate,
       arrivalDate: reservation.arrivalDate,
+      comment: reservation.comment,
     }));
 
     return new NextResponse(
