@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import axios from "axios";
 
 export default function AvailableVoyages() {
   const [voyages, setVoyages] = useState([]);
@@ -20,7 +19,6 @@ export default function AvailableVoyages() {
           window.location.href = "/";
           return;
         }
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       } catch (err) {
         console.error("Invalid token:", err);
         window.location.href = "/";
@@ -33,12 +31,27 @@ export default function AvailableVoyages() {
 
     const fetchData = async () => {
       try {
-        const voyagesResponse = await axios.get("/api/voyages/getAllVoyages");
-        const shipsResponse = await axios.get("/api/ships/getShips");
-        setVoyages(voyagesResponse.data.voyages || []);
-        setShips(shipsResponse.data.ships || []);
+        const voyagesResponse = await fetch("/api/voyages/getAllVoyages", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const shipsResponse = await fetch("/api/ships/getShips", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (!voyagesResponse.ok || !shipsResponse.ok) {
+          throw new Error("Failed to fetch data.");
+        }
+
+        const voyagesData = await voyagesResponse.json();
+        const shipsData = await shipsResponse.json();
+        setVoyages(voyagesData.voyages || []);
+        setShips(shipsData.ships || []);
       } catch (err) {
-        console.error("Error fetching data:", err.response?.data || err.message);
+        console.error("Error fetching data:", err.message);
         setError("Failed to fetch data.");
       }
     };
@@ -48,11 +61,21 @@ export default function AvailableVoyages() {
 
   const handleEdit = async (id) => {
     try {
-      const response = await axios.get(`/api/voyages/getVoyage/${id}`);
-      setEditingVoyage(response.data);
+      const response = await fetch(`/api/voyages/getVoyage/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch voyage details.");
+      }
+
+      const data = await response.json();
+      setEditingVoyage(data);
       setIsCreating(false);
     } catch (err) {
-      console.error("Error fetching voyage details:", err.response?.data || err.message);
+      console.error("Error fetching voyage details:", err.message);
     }
   };
 
@@ -72,29 +95,52 @@ export default function AvailableVoyages() {
   const handleSave = async () => {
     try {
       if (isCreating) {
-        const response = await axios.post("/api/voyages/createVoyage", {
-          shipId: editingVoyage.ship,
-          departurePort: editingVoyage.departurePort,
-          arrivalPort: editingVoyage.arrivalPort,
-          departureDate: editingVoyage.departureDate,
-          arrivalDate: editingVoyage.arrivalDate,
+        const response = await fetch("/api/voyages/createVoyage", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            shipId: editingVoyage.ship,
+            departurePort: editingVoyage.departurePort,
+            arrivalPort: editingVoyage.arrivalPort,
+            departureDate: editingVoyage.departureDate,
+            arrivalDate: editingVoyage.arrivalDate,
+          }),
         });
-        setVoyages((prevVoyages) => [...prevVoyages, response.data.voyage]);
+
+        if (!response.ok) {
+          throw new Error("Failed to create voyage.");
+        }
+
+        const data = await response.json();
+        setVoyages((prevVoyages) => [...prevVoyages, data.voyage]);
       } else {
-        const response = await axios.put(
-          `/api/voyages/updateVoyage/${editingVoyage.id}`,
-          editingVoyage
-        );
+        const response = await fetch(`/api/voyages/updateVoyage/${editingVoyage.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(editingVoyage),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to update voyage.");
+        }
+
+        const data = await response.json();
         setVoyages((prevVoyages) =>
           prevVoyages.map((voyage) =>
-            voyage.id === editingVoyage.id ? response.data.voyage : voyage
+            voyage.id === editingVoyage.id ? data.voyage : voyage
           )
         );
       }
       setEditingVoyage(null);
       setIsCreating(false);
     } catch (err) {
-      console.error("Error saving voyage:", err.response?.data || err.message);
+      console.error("Error saving voyage:", err.message);
     }
   };
 
@@ -104,21 +150,41 @@ export default function AvailableVoyages() {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/voyages/deleteVoyage/${deletingVoyageId}`);
+      const response = await fetch(`/api/voyages/deleteVoyage/${deletingVoyageId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete voyage.");
+      }
+
       setVoyages((prevVoyages) =>
         prevVoyages.filter((voyage) => voyage.id !== deletingVoyageId)
       );
       setDeletingVoyageId(null); // Zamknij modal po usunięciu
     } catch (err) {
-      console.error("Error deleting voyage:", err.response?.data || err.message);
+      console.error("Error deleting voyage:", err.message);
     }
   };
 
   const handleChange = async (field, value) => {
     if (field === "ship") {
       try {
-        const response = await axios.get(`/api/ships/getShipById/${value}`);
-        const ship = response.data.ship;
+        const response = await fetch(`/api/ships/getShipById/${value}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch ship details.");
+        }
+
+        const data = await response.json();
+        const ship = data.ship;
 
         setEditingVoyage((prev) => ({
           ...prev,
