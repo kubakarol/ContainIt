@@ -7,7 +7,8 @@ export default function AvailableVoyages() {
   const [voyages, setVoyages] = useState([]);
   const [ships, setShips] = useState([]);
   const [error, setError] = useState(null);
-  const [editingVoyage, setEditingVoyage] = useState(null);
+  const [editingVoyage, setEditingVoyage] = useState(null); // Dla edycji i tworzenia rejsu
+  const [isCreating, setIsCreating] = useState(false); // Czy tworzymy nowy rejs
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -50,35 +51,64 @@ export default function AvailableVoyages() {
     try {
       const response = await axios.get(`/api/voyages/getVoyage/${id}`);
       setEditingVoyage(response.data);
+      setIsCreating(false); // Tryb edycji
     } catch (err) {
       console.error("Error fetching voyage details:", err.response?.data || err.message);
       alert("Failed to fetch voyage details.");
     }
   };
 
+  const handleCreate = () => {
+    // Ustawiamy pusty formularz dla tworzenia nowego rejsu
+    setEditingVoyage({
+      ship: "",
+      departurePort: "",
+      arrivalPort: "",
+      departureDate: "",
+      arrivalDate: "",
+      availableContainers: "",
+      pricePerContainer: "",
+    });
+    setIsCreating(true); // Tryb tworzenia
+  };
+
   const handleSave = async () => {
     try {
-      const response = await axios.put(
-        `/api/voyages/updateVoyage/${editingVoyage.id}`,
-        editingVoyage
-      );
-      setVoyages((prevVoyages) =>
-        prevVoyages.map((voyage) =>
-          voyage.id === editingVoyage.id ? response.data.voyage : voyage
-        )
-      );
+      if (isCreating) {
+        // Tworzenie nowego rejsu
+        const response = await axios.post("/api/voyages/createVoyage", {
+          shipId: editingVoyage.ship,
+          departurePort: editingVoyage.departurePort,
+          arrivalPort: editingVoyage.arrivalPort,
+          departureDate: editingVoyage.departureDate,
+          arrivalDate: editingVoyage.arrivalDate,
+        });
+        setVoyages((prevVoyages) => [...prevVoyages, response.data.voyage]);
+        alert("Voyage created successfully");
+      } else {
+        // Aktualizacja istniejącego rejsu
+        const response = await axios.put(
+          `/api/voyages/updateVoyage/${editingVoyage.id}`,
+          editingVoyage
+        );
+        setVoyages((prevVoyages) =>
+          prevVoyages.map((voyage) =>
+            voyage.id === editingVoyage.id ? response.data.voyage : voyage
+          )
+        );
+        alert("Voyage updated successfully");
+      }
       setEditingVoyage(null);
-      alert("Voyage updated successfully");
+      setIsCreating(false);
     } catch (err) {
-      console.error("Error updating voyage:", err.response?.data || err.message);
-      alert("Failed to update voyage.");
+      console.error("Error saving voyage:", err.response?.data || err.message);
+      alert(isCreating ? "Failed to create voyage." : "Failed to update voyage.");
     }
   };
 
   const handleChange = async (field, value) => {
     if (field === "ship") {
       try {
-        // Pobierz dane nowego statku
         const response = await axios.get(`/api/ships/getShipById/${value}`);
         const ship = response.data.ship;
 
@@ -105,7 +135,12 @@ export default function AvailableVoyages() {
     <div>
       <Navbar />
       <div className="container mt-4">
-        <h1 className="mb-4">Available Voyages</h1>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1>Available Voyages</h1>
+          <button className="btn btn-success" onClick={handleCreate}>
+            + Create Voyage
+          </button>
+        </div>
         {error && <div className="alert alert-danger">{error}</div>}
         <div className="row">
           {voyages.map((voyage) => (
@@ -137,13 +172,15 @@ export default function AvailableVoyages() {
         </div>
       </div>
 
-      {/* Okno edycji */}
+      {/* Okno edycji/tworzenia */}
       {editingVoyage && (
         <div className="modal show d-block" tabIndex="-1">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Edit Voyage</h5>
+                <h5 className="modal-title">
+                  {isCreating ? "Create Voyage" : "Edit Voyage"}
+                </h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -158,6 +195,7 @@ export default function AvailableVoyages() {
                     value={editingVoyage.ship}
                     onChange={(e) => handleChange("ship", e.target.value)}
                   >
+                    <option value="">Select a ship</option>
                     {ships.map((ship) => (
                       <option key={ship.id || ship._id} value={ship.id || ship._id}>
                         {ship.name}
@@ -188,9 +226,7 @@ export default function AvailableVoyages() {
                   <input
                     type="date"
                     className="form-control"
-                    value={new Date(editingVoyage.departureDate)
-                      .toISOString()
-                      .split("T")[0]}
+                    value={editingVoyage.departureDate}
                     onChange={(e) => handleChange("departureDate", e.target.value)}
                   />
                 </div>
@@ -199,9 +235,7 @@ export default function AvailableVoyages() {
                   <input
                     type="date"
                     className="form-control"
-                    value={new Date(editingVoyage.arrivalDate)
-                      .toISOString()
-                      .split("T")[0]}
+                    value={editingVoyage.arrivalDate}
                     onChange={(e) => handleChange("arrivalDate", e.target.value)}
                   />
                 </div>
@@ -211,7 +245,7 @@ export default function AvailableVoyages() {
                     type="number"
                     className="form-control"
                     value={editingVoyage.availableContainers}
-                    onChange={(e) => handleChange("availableContainers", e.target.value)}
+                    disabled
                   />
                 </div>
                 <div className="mb-3">
@@ -220,7 +254,7 @@ export default function AvailableVoyages() {
                     type="number"
                     className="form-control"
                     value={editingVoyage.pricePerContainer}
-                    onChange={(e) => handleChange("pricePerContainer", e.target.value)}
+                    disabled
                   />
                 </div>
               </div>
@@ -233,7 +267,7 @@ export default function AvailableVoyages() {
                   Cancel
                 </button>
                 <button type="button" className="btn btn-primary" onClick={handleSave}>
-                  Save
+                  {isCreating ? "Create" : "Save"}
                 </button>
               </div>
             </div>
