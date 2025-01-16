@@ -1,29 +1,28 @@
-import Voyage from '../../../../../models/Voyage'; // Model rejsu
-import Ship from '../../../../../models/Ship'
+import Voyage from '../../../../../models/Voyage';
+import verifyToken from '../../../middleware/verifyToken';
 
 export async function GET(req, { params }) {
   try {
-    const { id } = params;
-
-    // Pobierz rejs na podstawie ID, w tym szczegóły statku
-    const voyage = await Voyage.findById(id)
-      .populate('ship', 'name capacity pricePerContainer');
-
-    // Jeśli rejs nie istnieje, zwróć 404
-    if (!voyage) {
-      return new Response(
-        JSON.stringify({ message: 'Voyage not found' }),
-        { status: 404 }
-      );
+    // Upewnij się, że params.id jest dostępny
+    if (!params?.id) {
+      return new Response(JSON.stringify({ message: 'ID is required' }), {
+        status: 400,
+      });
     }
 
-    // Zwróć szczegóły rejsu
+    const id = params.id;
+
+    const voyage = await Voyage.findById(id).populate('ship');
+    if (!voyage) {
+      return new Response(JSON.stringify({ message: 'Voyage not found' }), {
+        status: 404,
+      });
+    }
+
     return new Response(
       JSON.stringify({
         id: voyage._id,
-        shipName: voyage.ship.name,
-        shipCapacity: voyage.ship.capacity,
-        shipPricePerContainer: voyage.ship.pricePerContainer,
+        ship: voyage.ship,
         departurePort: voyage.departurePort,
         arrivalPort: voyage.arrivalPort,
         departureDate: voyage.departureDate,

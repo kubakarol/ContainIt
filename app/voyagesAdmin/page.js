@@ -7,8 +7,9 @@ export default function AvailableVoyages() {
   const [voyages, setVoyages] = useState([]);
   const [ships, setShips] = useState([]);
   const [error, setError] = useState(null);
-  const [editingVoyage, setEditingVoyage] = useState(null); // Dla edycji i tworzenia rejsu
-  const [isCreating, setIsCreating] = useState(false); // Czy tworzymy nowy rejs
+  const [editingVoyage, setEditingVoyage] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [deletingVoyageId, setDeletingVoyageId] = useState(null); // ID rejsu do usunięcia
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -16,7 +17,6 @@ export default function AvailableVoyages() {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
         if (payload.role !== "admin") {
-          alert("Access denied. Admins only.");
           window.location.href = "/";
           return;
         }
@@ -27,7 +27,6 @@ export default function AvailableVoyages() {
         return;
       }
     } else {
-      alert("No token found. Redirecting to login.");
       window.location.href = "/";
       return;
     }
@@ -51,15 +50,13 @@ export default function AvailableVoyages() {
     try {
       const response = await axios.get(`/api/voyages/getVoyage/${id}`);
       setEditingVoyage(response.data);
-      setIsCreating(false); // Tryb edycji
+      setIsCreating(false);
     } catch (err) {
       console.error("Error fetching voyage details:", err.response?.data || err.message);
-      alert("Failed to fetch voyage details.");
     }
   };
 
   const handleCreate = () => {
-    // Ustawiamy pusty formularz dla tworzenia nowego rejsu
     setEditingVoyage({
       ship: "",
       departurePort: "",
@@ -69,13 +66,12 @@ export default function AvailableVoyages() {
       availableContainers: "",
       pricePerContainer: "",
     });
-    setIsCreating(true); // Tryb tworzenia
+    setIsCreating(true);
   };
 
   const handleSave = async () => {
     try {
       if (isCreating) {
-        // Tworzenie nowego rejsu
         const response = await axios.post("/api/voyages/createVoyage", {
           shipId: editingVoyage.ship,
           departurePort: editingVoyage.departurePort,
@@ -84,9 +80,7 @@ export default function AvailableVoyages() {
           arrivalDate: editingVoyage.arrivalDate,
         });
         setVoyages((prevVoyages) => [...prevVoyages, response.data.voyage]);
-        alert("Voyage created successfully");
       } else {
-        // Aktualizacja istniejącego rejsu
         const response = await axios.put(
           `/api/voyages/updateVoyage/${editingVoyage.id}`,
           editingVoyage
@@ -96,13 +90,27 @@ export default function AvailableVoyages() {
             voyage.id === editingVoyage.id ? response.data.voyage : voyage
           )
         );
-        alert("Voyage updated successfully");
       }
       setEditingVoyage(null);
       setIsCreating(false);
     } catch (err) {
       console.error("Error saving voyage:", err.response?.data || err.message);
-      alert(isCreating ? "Failed to create voyage." : "Failed to update voyage.");
+    }
+  };
+
+  const confirmDelete = (id) => {
+    setDeletingVoyageId(id); // Otwórz modal potwierdzenia
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`/api/voyages/deleteVoyage/${deletingVoyageId}`);
+      setVoyages((prevVoyages) =>
+        prevVoyages.filter((voyage) => voyage.id !== deletingVoyageId)
+      );
+      setDeletingVoyageId(null); // Zamknij modal po usunięciu
+    } catch (err) {
+      console.error("Error deleting voyage:", err.response?.data || err.message);
     }
   };
 
@@ -112,7 +120,6 @@ export default function AvailableVoyages() {
         const response = await axios.get(`/api/ships/getShipById/${value}`);
         const ship = response.data.ship;
 
-        // Zaktualizuj dane rejsu o nowe wartości z modelu statku
         setEditingVoyage((prev) => ({
           ...prev,
           [field]: value,
@@ -121,7 +128,6 @@ export default function AvailableVoyages() {
         }));
       } catch (err) {
         console.error("Error fetching ship details:", err.message);
-        alert("Failed to fetch ship details.");
       }
     } else {
       setEditingVoyage((prev) => ({
@@ -159,12 +165,20 @@ export default function AvailableVoyages() {
                     {voyage.availableContainers} <br />
                     <strong>Price per Container:</strong> ${voyage.pricePerContainer}
                   </p>
-                  <button
-                    className="btn btn-warning w-50"
-                    onClick={() => handleEdit(voyage.id || voyage._id)}
-                  >
-                    Edit
-                  </button>
+                  <div className="d-flex justify-content-center gap-3">
+                    <button
+                      className="btn btn-warning w-50"
+                      onClick={() => handleEdit(voyage.id || voyage._id)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger w-50"
+                      onClick={() => confirmDelete(voyage.id || voyage._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -172,7 +186,7 @@ export default function AvailableVoyages() {
         </div>
       </div>
 
-      {/* Okno edycji/tworzenia */}
+      {/* Modal edycji/tworzenia */}
       {editingVoyage && (
         <div className="modal show d-block" tabIndex="-1">
           <div className="modal-dialog">
@@ -268,6 +282,39 @@ export default function AvailableVoyages() {
                 </button>
                 <button type="button" className="btn btn-primary" onClick={handleSave}>
                   {isCreating ? "Create" : "Save"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal potwierdzenia usunięcia */}
+      {deletingVoyageId && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Delete</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setDeletingVoyageId(null)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to delete this voyage?</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setDeletingVoyageId(null)}
+                >
+                  Cancel
+                </button>
+                <button type="button" className="btn btn-danger" onClick={handleDelete}>
+                  Delete
                 </button>
               </div>
             </div>
