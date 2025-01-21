@@ -35,7 +35,6 @@ export default function Reservations() {
     fetchReservations();
   }, []);
 
-  // Funkcja do zatwierdzenia rezerwacji
   const handleApprove = async (reservationId) => {
     try {
       const token = localStorage.getItem("token");
@@ -53,7 +52,6 @@ export default function Reservations() {
         throw new Error(message || "Failed to approve reservation");
       }
 
-      // Aktualizacja stanu lokalnego
       setReservations((prev) =>
         prev.map((res) =>
           res.id === reservationId ? { ...res, status: "Approved" } : res
@@ -67,9 +65,8 @@ export default function Reservations() {
     }
   };
 
-  // Funkcja do odrzucenia rezerwacji
   const handleReject = async (reservationId) => {
-    const comment = rejectComment[reservationId] || ""; // Pobierz komentarz dla rezerwacji
+    const comment = rejectComment[reservationId] || "";
     if (!comment.trim()) {
       alert("Please provide a comment for rejection");
       return;
@@ -91,7 +88,6 @@ export default function Reservations() {
         throw new Error(message || "Failed to reject reservation");
       }
 
-      // Aktualizacja stanu lokalnego
       setReservations((prev) =>
         prev.map((res) =>
           res.id === reservationId
@@ -107,17 +103,14 @@ export default function Reservations() {
     }
   };
 
-  // Obsługa zmiany komentarza
   const handleCommentChange = (reservationId, value) => {
     setRejectComment((prev) => ({ ...prev, [reservationId]: value }));
   };
 
   return (
     <div>
-      {/* Navbar */}
       <Navbar />
 
-      {/* Treść */}
       <div className="container mt-4">
         <h1 className="mb-4">Reservations</h1>
         {error && <div className="alert alert-danger">{error}</div>}
@@ -129,7 +122,7 @@ export default function Reservations() {
                   <h5 className="card-title">
                     Reservation ID: {reservation.id}
                   </h5>
-                  <p className="card-text">
+                  <div className="card-text">
                     <strong>Ship Name:</strong> {reservation.voyage.shipName}
                     <br />
                     <strong>Departure:</strong> {reservation.voyage.departurePort}
@@ -143,12 +136,12 @@ export default function Reservations() {
                     <br />
                     <strong>Status:</strong> {reservation.status}
                     {reservation.status === "Rejected" && (
-                      <p>
+                      <div>
                         <strong>Comment:</strong>{" "}
                         {reservation.comment || "No comment provided"}
-                      </p>
+                      </div>
                     )}
-                  </p>
+                  </div>
                   {reservation.status === "Pending" && (
                     <div>
                       <button
