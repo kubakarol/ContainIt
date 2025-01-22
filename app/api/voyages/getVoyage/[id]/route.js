@@ -1,16 +1,15 @@
 import Voyage from '../../../../../models/Voyage';
-import verifyToken from '../../../middleware/verifyToken';
 
 export async function GET(req, { params }) {
   try {
-    // Upewnij się, że params.id jest dostępny
-    if (!params?.id) {
-      return new Response(JSON.stringify({ message: 'ID is required' }), {
+    // Czekaj na odczytanie właściwości params
+    const { id } = params;
+
+    if (!id) {
+      return new Response(JSON.stringify({ message: 'Voyage ID is required' }), {
         status: 400,
       });
     }
-
-    const id = params.id;
 
     const voyage = await Voyage.findById(id).populate('ship');
     if (!voyage) {

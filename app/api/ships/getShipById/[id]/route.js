@@ -2,7 +2,7 @@ import verifyToken from '../../../middleware/verifyToken';
 import Ship from '../../../../../models/Ship';
 
 // Obsługuje metodę GET - pobieranie statku po ID
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
     // Sprawdzanie tokenu i roli użytkownika
     const { error, user, response } = await verifyToken(req, true); // True oznacza, że wymagana jest rola admina
@@ -10,7 +10,7 @@ export async function GET(req, { params }) {
 
     console.log('Authenticated admin:', user);
 
-    const { id } = params; // Pobieramy ID z dynamicznego parametru
+    const { id } = await context.params; // Pobieranie ID z dynamicznego parametru w sposób asynchroniczny
     console.log('Looking for ship with ID:', id);
 
     // Weryfikacja formatu ID

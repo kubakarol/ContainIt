@@ -232,12 +232,12 @@ export default function AvailableVoyages() {
                     <strong>Price per Container:</strong> ${voyage.pricePerContainer}
                   </p>
                   <div className="d-flex justify-content-center gap-3">
-                    <button
+                    {/* <button
                       className="btn btn-warning w-50"
                       onClick={() => handleEdit(voyage.id || voyage._id)}
                     >
                       Edit
-                    </button>
+                    </button> */}
                     <button
                       className="btn btn-danger w-50"
                       onClick={() => confirmDelete(voyage.id || voyage._id)}

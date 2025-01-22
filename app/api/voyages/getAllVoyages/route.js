@@ -18,9 +18,9 @@ export async function GET(req) {
       JSON.stringify({
         voyages: voyages.map((voyage) => ({
           id: voyage._id, // Dodanie _id jako id
-          shipName: voyage.ship.name, // Nazwa statku
-          shipCapacity: voyage.ship.capacity, // Pojemność statku
-          shipPricePerContainer: voyage.ship.pricePerContainer, // Cena za kontener
+          shipName: voyage.shipName, // Nazwa statku
+          shipCapacity: voyage.shipCapacity, // Pojemność statku
+          shipPricePerContainer: voyage.shipPricePerContainer, // Cena za kontener
           departurePort: voyage.departurePort,
           arrivalPort: voyage.arrivalPort,
           departureDate: voyage.departureDate,
