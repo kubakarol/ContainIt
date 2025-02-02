@@ -149,31 +149,6 @@ export default function Analytics() {
           </table>
         </div>
 
-        {/* Średni czas podróży */}
-        <div className="mb-5">
-          <h2 className="text-info">Average Travel Time</h2>
-          <table className="table table-striped">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Departure Port</th>
-                <th>Arrival Port</th>
-                <th>Average Travel Time (Days)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {travelTimes.map((route, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{route._id.departurePort}</td>
-                  <td>{route._id.arrivalPort}</td>
-                  <td>{(route.avgTravelTime / (1000 * 60 * 60 * 24)).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
         {/* Zarobki statków */}
         <div>
           <h2 className="text-success">Ship Revenue</h2>
@@ -218,6 +193,30 @@ export default function Analytics() {
               />
             </div>
           )}
+        </div>
+        {/* Średni czas podróży */}
+        <div className="mb-5">
+          <h2 className="text-info">Average Travel Time</h2>
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Departure Port</th>
+                <th>Arrival Port</th>
+                <th>Average Travel Time (Days)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {travelTimes.map((route, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{route._id.departurePort}</td>
+                  <td>{route._id.arrivalPort}</td>
+                  <td>{(route.avgTravelTime / (1000 * 60 * 60 * 24)).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
