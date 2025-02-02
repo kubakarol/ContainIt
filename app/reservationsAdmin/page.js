@@ -132,6 +132,8 @@ export default function Reservations() {
                         Reservation ID: {reservation.id}
                       </h5>
                       <div className="card-text">
+                        <strong>User:</strong> {reservation.username}
+                        <br />
                         <strong>Ship Name:</strong> {reservation.voyage.shipName}
                         <br />
                         <strong>Departure:</strong> {reservation.voyage.departurePort}

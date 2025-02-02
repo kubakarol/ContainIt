@@ -88,7 +88,7 @@ export default function Navbar() {
                   <a className="nav-link" href="/usersAdmin">Users</a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="/analytics">Analytics</a>
+                  <a className="nav-link" href="/showAnalyticsAdmin">Analytics</a>
                 </li>
               </>
             )}
