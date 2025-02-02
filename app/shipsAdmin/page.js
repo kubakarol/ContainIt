@@ -72,7 +72,7 @@ export default function Ships() {
       setNewShip({ name: "", capacity: "", pricePerContainer: "" });
       fetchShips();
 
-      // ✅ Zamknięcie modala po dodaniu statku
+      // Zamknięcie modala po dodaniu statku
       const modalElement = document.getElementById("addShipModal");
       const modalInstance = Modal.getInstance(modalElement) || new Modal(modalElement);
       modalInstance.hide();
@@ -84,7 +84,7 @@ export default function Ships() {
     }
   };
 
-  // ✅ Obsługa usuwania statku
+  // Obsługa usuwania statku
   const handleDeleteShip = async () => {
     if (!shipToDelete) return;
   
@@ -93,13 +93,13 @@ export default function Ships() {
   
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("/api/ships/deleteShip", {  // ✅ Remove ID from URL
+      const response = await fetch("/api/ships/deleteShip", {  // Remove ID from URL
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ id: shipToDelete._id }),  // ✅ Send ID in request body
+        body: JSON.stringify({ id: shipToDelete._id }),  // Send ID in request body
       });
   
       if (!response.ok) {
@@ -109,7 +109,7 @@ export default function Ships() {
   
       fetchShips();
   
-      // ✅ Close modal after deletion
+      // Close modal after deletion
       const modalElement = document.getElementById("deleteShipModal");
       const modalInstance = Modal.getInstance(modalElement) || new Modal(modalElement);
       modalInstance.hide();
