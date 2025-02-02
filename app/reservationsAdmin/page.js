@@ -140,6 +140,10 @@ export default function Reservations() {
                         <br />
                         <strong>Reserved Containers:</strong> {reservation.reservedContainers}
                         <br />
+                        <strong>Departure Date:</strong> {new Date(reservation.departureDate).toLocaleDateString()}
+                        <br />
+                        <strong>Arrival Date:</strong> {new Date(reservation.arrivalDate).toLocaleDateString()}
+                        <br />
                         <strong>Total Price:</strong> ${reservation.totalPrice}
                       </div>
                       <div className="mt-3">
