@@ -6,7 +6,7 @@ import Navbar from "../components/Navbar";
 export default function Reservations() {
   const [reservations, setReservations] = useState([]);
   const [error, setError] = useState(null);
-  const [rejectComment, setRejectComment] = useState({}); // Komentarze dla odrzucenia
+  const [rejectComment, setRejectComment] = useState({});
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -16,7 +16,7 @@ export default function Reservations() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Token w nagłówku
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -35,6 +35,7 @@ export default function Reservations() {
     fetchReservations();
   }, []);
 
+  // Funkcja do zatwierdzania rezerwacji
   const handleApprove = async (reservationId) => {
     try {
       const token = localStorage.getItem("token");
@@ -65,6 +66,7 @@ export default function Reservations() {
     }
   };
 
+  // Funkcja do odrzucania rezerwacji
   const handleReject = async (reservationId) => {
     const comment = rejectComment[reservationId] || "";
     if (!comment.trim()) {
@@ -107,6 +109,10 @@ export default function Reservations() {
     setRejectComment((prev) => ({ ...prev, [reservationId]: value }));
   };
 
+  // Podział rezerwacji na dwie sekcje
+  const pendingReservations = reservations.filter((res) => res.status === "Pending");
+  const otherReservations = reservations.filter((res) => res.status !== "Pending");
+
   return (
     <div>
       <Navbar />
@@ -114,63 +120,99 @@ export default function Reservations() {
       <div className="container mt-4">
         <h1 className="mb-4">Reservations</h1>
         {error && <div className="alert alert-danger">{error}</div>}
-        <div className="row">
-          {reservations.map((reservation) => (
-            <div className="col-md-6 mb-4" key={reservation.id}>
-              <div className="card">
-                <div className="card-body">
-                  <h5 className="card-title">
-                    Reservation ID: {reservation.id}
-                  </h5>
-                  <div className="card-text">
-                    <strong>Ship Name:</strong> {reservation.voyage.shipName}
-                    <br />
-                    <strong>Departure:</strong> {reservation.voyage.departurePort}
-                    <br />
-                    <strong>Arrival:</strong> {reservation.voyage.arrivalPort}
-                    <br />
-                    <strong>Reserved Containers:</strong>{" "}
-                    {reservation.reservedContainers}
-                    <br />
-                    <strong>Total Price:</strong> ${reservation.totalPrice}
-                    <br />
-                    <strong>Status:</strong> {reservation.status}
-                    {reservation.status === "Rejected" && (
-                      <div>
-                        <strong>Comment:</strong>{" "}
-                        {reservation.comment || "No comment provided"}
+        {pendingReservations.length > 0 && (
+          <div className="mb-5">
+            <h2 className="text-warning">Pending Reservations</h2>
+            <div className="row">
+              {pendingReservations.map((reservation) => (
+                <div className="col-md-6 mb-4" key={reservation.id}>
+                  <div className="card border-warning">
+                    <div className="card-body">
+                      <h5 className="card-title">
+                        Reservation ID: {reservation.id}
+                      </h5>
+                      <div className="card-text">
+                        <strong>Ship Name:</strong> {reservation.voyage.shipName}
+                        <br />
+                        <strong>Departure:</strong> {reservation.voyage.departurePort}
+                        <br />
+                        <strong>Arrival:</strong> {reservation.voyage.arrivalPort}
+                        <br />
+                        <strong>Reserved Containers:</strong> {reservation.reservedContainers}
+                        <br />
+                        <strong>Total Price:</strong> ${reservation.totalPrice}
                       </div>
-                    )}
-                  </div>
-                  {reservation.status === "Pending" && (
-                    <div>
-                      <button
-                        className="btn btn-success me-2"
-                        onClick={() => handleApprove(reservation.id)}
-                      >
-                        Approve
-                      </button>
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => handleReject(reservation.id)}
-                      >
-                        Reject
-                      </button>
-                      <textarea
-                        className="form-control mt-2"
-                        placeholder="Add rejection comment"
-                        value={rejectComment[reservation.id] || ""}
-                        onChange={(e) =>
-                          handleCommentChange(reservation.id, e.target.value)
-                        }
-                      />
+                      <div className="mt-3">
+                        <button
+                          className="btn btn-success me-2"
+                          onClick={() => handleApprove(reservation.id)}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => handleReject(reservation.id)}
+                        >
+                          Reject
+                        </button>
+                        <textarea
+                          className="form-control mt-2"
+                          placeholder="Add rejection comment"
+                          value={rejectComment[reservation.id] || ""}
+                          onChange={(e) =>
+                            handleCommentChange(reservation.id, e.target.value)
+                          }
+                        />
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+
+        {otherReservations.length > 0 && (
+          <div>
+            <h2 className="text-primary">Past Reservations</h2>
+            <div className="row">
+              {otherReservations.map((reservation) => (
+                <div className="col-md-6 mb-4" key={reservation.id}>
+                  <div className={`card ${reservation.status === "Approved" ? "border-success" : "border-danger"}`}>
+                    <div className="card-body">
+                      <h5 className="card-title">
+                        Reservation ID: {reservation.id}
+                      </h5>
+                      <div className="card-text">
+                        <strong>Ship Name:</strong> {reservation.voyage.shipName}
+                        <br />
+                        <strong>Departure:</strong> {reservation.voyage.departurePort}
+                        <br />
+                        <strong>Arrival:</strong> {reservation.voyage.arrivalPort}
+                        <br />
+                        <strong>Reserved Containers:</strong> {reservation.reservedContainers}
+                        <br />
+                        <strong>Total Price:</strong> ${reservation.totalPrice}
+                        <br />
+                        <strong>Status:</strong> 
+                        <span className={`text-${reservation.status === "Approved" ? "success" : "danger"}`}>
+                          {" "}{reservation.status}
+                        </span>
+                        {reservation.status === "Rejected" && (
+                          <div>
+                            <strong>Comment:</strong>{" "}
+                            {reservation.comment || "No comment provided"}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
