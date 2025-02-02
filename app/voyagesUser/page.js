@@ -84,10 +84,20 @@ export default function AvailableVoyages() {
   };
 
   const handleContainerChange = (value) => {
-    const containers = Math.max(1, Math.min(value, selectedVoyage.availableContainers));
+    // Usunięcie znaków niebędących cyframi
+    if (!Number.isInteger(value) || value === "" || value < 1) {
+      setReservedContainers("");
+      setTotalPrice(0); // Cena będzie 0, jeśli nic nie wpisano lub wpisano błędną wartość
+      return;
+    }
+  
+    // Po wpisaniu liczby całkowitej, nakładamy ograniczenie do maksymalnej dostępnej liczby kontenerów
+    const containers = Math.min(value, selectedVoyage.availableContainers);
     setReservedContainers(containers);
     setTotalPrice(containers * selectedVoyage.pricePerContainer);
   };
+  
+
 
   return (
     <div>
