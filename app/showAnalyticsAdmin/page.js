@@ -142,7 +142,7 @@ export default function Analytics() {
                 <tr key={index}>
                   <td>{index + 1}</td>
                   <td>{customer.username}</td>
-                  <td>${customer.totalSpent.toFixed(2)}</td>
+                  <td>${customer.totalSpent.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

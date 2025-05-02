@@ -22,6 +22,7 @@ export async function GET(req, { params }) {
       JSON.stringify({
         id: voyage._id,
         ship: voyage.ship,
+        shipName: voyage.shipName,
         departurePort: voyage.departurePort,
         arrivalPort: voyage.arrivalPort,
         departureDate: voyage.departureDate,
